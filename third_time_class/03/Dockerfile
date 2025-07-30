@@ -1,13 +1,18 @@
+# ===== ビルドステージ =====
 FROM golang:1.24-alpine3.22 AS builder
 
-WORKDIR /
+WORKDIR /app
 COPY main.go .
-RUN go build main.go
 
-FROM alpine:3.22
+RUN go build -o myapp main.go
 
-COPY --from=builder / /
+# ===== 実行ステージ =====
+FROM scratch
 
-CMD ["./main"]
+WORKDIR /
 
+# builder ステージからコンパイル済バイナリのみコピー
+COPY --from=builder /app/myapp /myapp
 
+# 実行コマンド
+CMD ["/myapp"]
